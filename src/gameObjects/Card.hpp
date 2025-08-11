@@ -1,21 +1,31 @@
 #ifndef CARD_HPP
 #define CARD_HPP
 
-\#include &lt;string&gt;
-\#include &lt;vector&gt;
-\#include "ASCII\_Engine/Core/Color.hpp" // Incluir para usar as cores da engine
+#include <string>
+#include "ASCII_Engine/core/BaseColor.hpp" // Corrigido: Inclui a definição de 'COR'
 
-// Enum para os valores das cartas
 enum class CardValue {
-ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER
+    ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER
 };
 
-// Enum para os naipes
 enum class CardSuit {
-HEARTS, DIAMONDS, CLUBS, SPADES, NONE // NONE para Coringas
+    HEARTS, DIAMONDS, CLUBS, SPADES, NONE
 };
 
 class Card {
 public:
-// Construtor que cria uma carta com um valor e um naipe
-Card(CardValue value, CardSuit suit);
+    Card(CardValue value, CardSuit suit);
+
+    CardValue getValue() const;
+    CardSuit getSuit() const;
+    COR::Cor getSuitColor() const; // Corrigido: Usa COR::Cor
+
+    std::string valueToString() const;
+    wchar_t suitToSymbol() const;
+
+private:
+    CardValue value;
+    CardSuit suit;
+};
+
+#endif // CARD_HPP

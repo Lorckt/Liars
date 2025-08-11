@@ -1,51 +1,63 @@
-// Implementação do construtor
-MainMenuScene::MainMenuScene() : Scene("MainMenu"), selectedOption(0) {
-// Carrega a arte do título a partir do arquivo de recurso
-titleSprite = Sprite("rsc/sprites/ui/title.img");
+#include "MainMenuScene.hpp"
+#include "ASCII_Engine/input/Keyboard.hpp"
+#include "ASCII_Engine/core/BaseColor.hpp"
+#include "BarScene.hpp"
 
-// Cria os objetos de texto para as opções do menu
-startText = new TextObject("start", "Iniciar Jogo", {35, 12});
-exitText = new TextObject("exit", "Sair", {35, 14});
-
-// Adiciona os objetos de texto à cena para que sejam desenhados
-this->addGameObject(startText);
-this->addGameObject(exitText);
-
-// Adiciona o sprite do título como um elemento visual na cena
-this->addVisualElement(&titleSprite, {10, 2});
+MainMenuScene::MainMenuScene() : Fase("MainMenu", Sprite("rsc/fundo.img")), selectedOption(0) {
+    startText = new FontSprite("Iniciar Jogo");
+    exitText = new FontSprite("Sair");
 }
 
-// Implementação da lógica de atualização
-void MainMenuScene::update(AEngine* engine, float deltaTime) {
-// Verifica se as teclas de navegação foram pressionadas
-if (Keyboard::isKeyPressed(Keyboard::Key::Down)) {
-selectedOption = 1;
-}
-if (Keyboard::isKeyPressed(Keyboard::Key::Up)) {
-selectedOption = 0;
+MainMenuScene::~MainMenuScene() {
+    delete startText;
+    delete exitText;
 }
 
-// Atualiza a cor do texto para destacar a opção selecionada
-if (selectedOption == 0) {
-    startText->setTextColor(Color::YELLOW);
-    exitText->setTextColor(Color::WHITE);
-} else {
-    startText->setTextColor(Color::WHITE);
-    exitText->setTextColor(Color::YELLOW);
+void MainMenuScene::init() {
+    // Inicialização da cena, se necessário.
 }
 
-// Verifica se a tecla Enter foi pressionada
-if (Keyboard::isKeyPressed(Keyboard::Key::Enter)) {
+unsigned MainMenuScene::run(SpriteBuffer& tela) {
+    // A engine que você está usando parece não ter um método estático update() ou isKeyPressed().
+    // A leitura do teclado é feita diretamente com Keyboard::read().
+    // Vamos adaptar para um modo de input bloqueante simples.
+    
+    tela.clear();
+    background->draw(tela, 0, 0);
+
     if (selectedOption == 0) {
-        // Se "Iniciar Jogo" estiver selecionado, cria e muda para a cena do bar
-        engine->addScene(new BarScene());
-        engine->setCurrentScene("BarScene");
+        startText->setCor(COR::AMARELA);
+        exitText->setCor(COR::BRANCA);
     } else {
-        // Se "Sair" estiver selecionado, para a execução da engine
-        engine->stop();
+        startText->setCor(COR::BRANCA);
+        exitText->setCor(COR::AMARELA);
     }
-}
-}
 
+    startText->draw(tela, 15, 35);
+    exitText->draw(tela, 17, 35);
 
-&lt;/immersive&gt;
+    show(tela); // Mostra o estado atual da tela
+
+    char input = Keyboard::read(); // Leitura bloqueante do teclado
+
+    switch(input) {
+        case 's':
+        case 'S':
+            selectedOption = 1;
+            break;
+        case 'w':
+        case 'W':
+            selectedOption = 0;
+            break;
+        case 13: // Código ASCII para Enter
+            if (selectedOption == 0) {
+                return Fase::LEVEL_1; // Muda para a cena do jogo
+            } else {
+                return Fase::END_GAME; // Fecha o jogo
+            }
+        case 27: // Código ASCII para ESC
+            return Fase::END_GAME;
+    }
+
+    return Fase::PLAYING;
+}

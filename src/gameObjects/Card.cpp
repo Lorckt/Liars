@@ -1,37 +1,33 @@
 #include "Card.hpp"
 
-// O construtor apenas armazena o valor e o naipe
 Card::Card(CardValue v, CardSuit s) : value(v), suit(s) {}
 
 CardValue Card::getValue() const { return value; }
 CardSuit Card::getSuit() const { return suit; }
 
-// Retorna o símbolo Unicode (wchar_t) para o naipe
 wchar_t Card::suitToSymbol() const {
     switch (suit) {
-        case CardSuit::HEARTS:   return L'♥'; // O 'L' antes da string indica que é um caractere "wide" (Unicode)
+        case CardSuit::HEARTS:   return L'♥';
         case CardSuit::DIAMONDS: return L'♦';
         case CardSuit::CLUBS:    return L'♣';
         case CardSuit::SPADES:   return L'♠';
-        default:                 return L'J'; // Símbolo para o Coringa
+        default:                 return L'J'; // J para Joker
     }
 }
 
-// Retorna a cor correta para o naipe, usando o enum 'Color' da engine
-Color Card::getSuitColor() const {
+COR::Cor Card::getSuitColor() const { // Corrigido: Usa COR::Cor
     switch (suit) {
         case CardSuit::HEARTS:
         case CardSuit::DIAMONDS:
-            return Color::RED;
+            return COR::VERMELHA; // Corrigido: Usa o namespace COR
         case CardSuit::CLUBS:
         case CardSuit::SPADES:
-            return Color::WHITE; // Usamos branco para naipes pretos, para melhor visibilidade no terminal
+            return COR::BRANCA; // Corrigido: Usa o namespace COR
         default:
-            return Color::MAGENTA; // Uma cor distinta para o Coringa
+            return COR::MAGENTA; // Corrigido: Usa o namespace COR
     }
 }
 
-// Retorna a representação em string do valor da carta
 std::string Card::valueToString() const {
     switch (value) {
         case CardValue::ACE: return "A";

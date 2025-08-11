@@ -1,133 +1,42 @@
-# Nome do executável final que será criado
+# Nome do executável final
 TARGET = LiarsBar
 
-# Compilador C++ que será usado (g++ é o padrão no Linux)
-
+# Compilador C++
 CXX = g++
 
-# Flags de compilação:
+# Flags de compilação: -std=c++17 para recursos modernos, -g para debug, -Wall para mais avisos
+CXXFLAGS = -std=c++17 -g -Wall
 
-# \-std=c++17: Usa a versão 2017 do C++, que tem recursos modernos.
-
-# \-g: Inclui informações de debug, o que ajuda a encontrar erros.
-
-CXXFLAGS = -std=c++17 -g
-
-# Diretório da engine para que o compilador saiba onde encontrar os seus ficheiros de cabeçalho
-
-ENGINE\_DIR = ./ASCII\_Engine/src
+# Diretório da engine para os includes
+ENGINE_DIR = ./ASCII_Engine
 
 # Flags de include: Diz ao compilador para procurar ficheiros .hpp nestas pastas
+INCLUDES = -I./src -I$(ENGINE_DIR)
 
-INCLUDES = -I./src -I$(ENGINE\_DIR)
+# Bibliotecas a serem lincadas. Para Linux, use -lncurses.
+LIBS = -lncurses
 
-# Bibliotecas a serem ligadas (linkadas).
+# Encontra automaticamente todos os ficheiros .cpp
+SOURCES = $(wildcard src/*.cpp src/gameObjects/*.cpp src/scenes/*.cpp $(ENGINE_DIR)/*.cpp $(ENGINE_DIR)/core/*.cpp $(ENGINE_DIR)/gameObjects/*.cpp $(ENGINE_DIR)/input/*.cpp $(ENGINE_DIR)/utils/*.cpp)
 
-# \-lcurses: É a biblioteca ncurses, essencial para manipulação de terminal no Linux,
-
-# que a Cpp-ASCII-Game-Engine utiliza.
-
-LIBS = -lcurses
-
-# Encontra automaticamente todos os ficheiros .cpp no diretório src e nos seus subdiretórios,
-
-# e também os ficheiros da engine. Não precisa de adicionar ficheiros novos manualmente\!
-
-SOURCES = $(wildcard src/*.cpp src/gameObjects/*.cpp src/scenes/*.cpp $(ENGINE\_DIR)/*.cpp $(ENGINE\_DIR)/Core/\*.cpp)
-
-# Converte a lista de ficheiros .cpp para uma lista de ficheiros objeto .o
-
+# Converte a lista de fontes .cpp para uma lista de ficheiros objeto .o
 OBJECTS = $(SOURCES:.cpp=.o)
 
-# Regra principal: 'make all' ou apenas 'make' irá construir o alvo (TARGET)
-
+# Regra principal: compila o alvo
 all: $(TARGET)
 
-# Regra para ligar (linkar) todos os ficheiros objeto (.o) e criar o executável final
-
+# Regra para lincar os ficheiros objeto e criar o executável
 $(TARGET): $(OBJECTS)
-$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
 
-# Regra genérica para compilar um ficheiro .cpp num ficheiro objeto .o
-
-# O compilador só irá refazer esta etapa para os ficheiros que foram modificados.
-
+# Regra para compilar ficheiros .cpp em ficheiros .o
 %.o: %.cpp
-$(CXX) $(CXXFLAGS) $(INCLUDES) -c $\< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-# Regra para limpar os ficheiros compilados e o executável
-
+# Regra para limpar os ficheiros compilados
 clean:
-rm -f $(TARGET) $(OBJECTS)
+	rm -f $(TARGET) $(OBJECTS)
 
-# Regra de conveniência para compilar e executar o jogo com um único comando
-
+# Comando para compilar e rodar
 run: all
-./$(TARGET)
-
-# Nome do executável final que será criado
-TARGET = LiarsBar
-
-# Compilador C++ que será usado (g++ é o padrão no Linux)
-
-CXX = g++
-
-# Flags de compilação:
-
-# \-std=c++17: Usa a versão 2017 do C++, que tem recursos modernos.
-
-# \-g: Inclui informações de debug, o que ajuda a encontrar erros.
-
-CXXFLAGS = -std=c++17 -g
-
-# Diretório da engine para que o compilador saiba onde encontrar os seus ficheiros de cabeçalho
-
-ENGINE\_DIR = ./ASCII\_Engine/src
-
-# Flags de include: Diz ao compilador para procurar ficheiros .hpp nestas pastas
-
-INCLUDES = -I./src -I$(ENGINE\_DIR)
-
-# Bibliotecas a serem ligadas (linkadas).
-
-# \-lcurses: É a biblioteca ncurses, essencial para manipulação de terminal no Linux,
-
-# que a Cpp-ASCII-Game-Engine utiliza.
-
-LIBS = -lcurses
-
-# Encontra automaticamente todos os ficheiros .cpp no diretório src e nos seus subdiretórios,
-
-# e também os ficheiros da engine. Não precisa de adicionar ficheiros novos manualmente\!
-
-SOURCES = $(wildcard src/*.cpp src/gameObjects/*.cpp src/scenes/*.cpp $(ENGINE\_DIR)/*.cpp $(ENGINE\_DIR)/Core/\*.cpp)
-
-# Converte a lista de ficheiros .cpp para uma lista de ficheiros objeto .o
-
-OBJECTS = $(SOURCES:.cpp=.o)
-
-# Regra principal: 'make all' ou apenas 'make' irá construir o alvo (TARGET)
-
-all: $(TARGET)
-
-# Regra para ligar (linkar) todos os ficheiros objeto (.o) e criar o executável final
-
-$(TARGET): $(OBJECTS)
-$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
-
-# Regra genérica para compilar um ficheiro .cpp num ficheiro objeto .o
-
-# O compilador só irá refazer esta etapa para os ficheiros que foram modificados.
-
-%.o: %.cpp
-$(CXX) $(CXXFLAGS) $(INCLUDES) -c $\< -o $@
-
-# Regra para limpar os ficheiros compilados e o executável
-
-clean:
-rm -f $(TARGET) $(OBJECTS)
-
-# Regra de conveniência para compilar e executar o jogo com um único comando
-
-run: all
-./$(TARGET)
+	./$(TARGET)
