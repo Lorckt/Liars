@@ -1,4 +1,4 @@
-#include "ASCII_Engine/Fase.hpp"
+#include "Fase.hpp" // Corrigido
 #include "scenes/MainMenuScene.hpp"
 #include "scenes/BarScene.hpp"
 #include <iostream>
@@ -18,17 +18,17 @@ int main() {
         Fase* cenaAtual = new MainMenuScene();
         SpriteBuffer tela(150, 40);
 
-        unsigned estado = Fase::MENU; // Estado inicial
+        unsigned estado = Fase::MENU;
         while(estado != Fase::END_GAME)
         {
             if (cenaAtual)
                 estado = cenaAtual->run(tela);
 
-            if(estado == Fase::LEVEL_1) { // Usando enum da engine
+            if(estado == Fase::LEVEL_1) {
                 delete cenaAtual;
                 cenaAtual = new BarScene();
             } else if (estado == Fase::MENU) {
-                 delete cenaAtual;
+                delete cenaAtual;
                 cenaAtual = new MainMenuScene();
             }
         }

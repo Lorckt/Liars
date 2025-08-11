@@ -2,7 +2,7 @@
 #define CARD_HPP
 
 #include <string>
-#include "ASCII_Engine/core/BaseColor.hpp" // Corrigido: Inclui a definição de 'COR'
+#include "core/BaseColor.hpp" // Corrigido
 
 enum class CardValue {
     ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER
@@ -18,7 +18,7 @@ public:
 
     CardValue getValue() const;
     CardSuit getSuit() const;
-    COR::Cor getSuitColor() const; // Corrigido: Usa COR::Cor
+    COR::Cor getSuitColor() const;
 
     std::string valueToString() const;
     wchar_t suitToSymbol() const;
