@@ -1,57 +1,53 @@
 #ifndef BAR_SCENE_HPP
 #define BAR_SCENE_HPP
 
-\#include "ASCII\_Engine/Scene.hpp"
-\#include "gameObjects/Table.hpp"
-\#include "ASCII\_Engine/TextObject.hpp"
-\#include "ASCII\_Engine/Sprite.hpp"
-\#include &lt;memory&gt;
-\#include &lt;vector&gt;
+#include "ASCII_Engine/Fase.hpp" // Herda de Fase, como no seu projeto
+#include "gameObjects/Table.hpp"
+#include "ASCII_Engine/FontSprite.hpp" // Usado para texto
+#include "ASCII_Engine/Sprite.hpp"
+#include <memory>
+#include <vector>
 
-// Enum para controlar o fluxo do jogo. A cena estará sempre num destes estados.
+// Enum para controlar o fluxo do jogo.
 enum class GameState {
-PLAYER\_TURN,    // A aguardar a ação do jogador humano
-AI\_TURN,        // A executar a lógica do oponente (IA)
-SHOW\_RESULT,    // A mostrar o resultado de uma acusação (quem mentiu, quem bebe)
-GAME\_OVER       // A mostrar a tela de fim de jogo
+    PLAYER_TURN,
+    AI_TURN,
+    SHOW_RESULT,
+    GAME_OVER
 };
 
-class BarScene : public Scene {
+class BarScene : public Fase {
 public:
-BarScene();
-virtual \~BarScene() = default; // O destrutor padrão é suficiente
+    BarScene();
+    virtual ~BarScene() = default;
 
-// Funções principais da engine, chamadas a cada ciclo do jogo
-virtual void update(AEngine* engine, float deltaTime) override;
-virtual void draw(Drawer& drawer) override;
-
+    // A função principal da cena, que substitui 'update' e 'draw'
+    virtual unsigned run(SpriteBuffer& tela) override;
 
 private:
-// --- Variáveis de Lógica e Estado ---
-std::unique\_ptr&lt;Table&gt; table; // O "cérebro" com as regras do jogo
-GameState currentState;       // O estado atual do jogo
+    // --- Lógica e Estado ---
+    std::unique_ptr<Table> table;
+    GameState currentState;
 
-// --- Variáveis de Interface (UI) ---
-TextObject* statusText;       // Mostra de quem é o turno
-TextObject* promptText;       // Mostra as ações disponíveis (A, D, Enter, L)
-TextObject* tableCardText;    // Mostra qual é a carta da mesa
-TextObject* resultText;       // Mostra o resultado de uma acusação
+    // --- Elementos de UI ---
+    FontSprite* statusText;
+    FontSprite* promptText;
+    FontSprite* tableCardText;
+    FontSprite* resultText;
 
-Sprite playerHandSprite;      // O sprite completo da mão do jogador
+    Sprite playerHandSprite;
 
-// --- Variáveis de Controlo do Jogador ---
-int selectedCardIndex;        // O índice (0, 1, 2...) da carta selecionada na mão
-int lastPlayerIndex;          // Guarda quem foi o último a jogar, para ser acusado
-std::vector lastPlayedCards; // Guarda as últimas cartas jogadas
-
-// --- Funções de Ajuda Internas ---
-void handlePlayerTurn();      // Lógica para o turno do jogador
-void handleAITurn();          // Lógica para o turno da IA
-void updatePlayerHandSprite(); // A função "mágica" que desenha a mão
-void drawTableInfo();         // Atualiza as informações da mesa
-void setupNewRound();         // Prepara o início de uma nova ronda
-
-
+    // --- Controlo do Jogador ---
+    int selectedCardIndex;
+    int lastPlayerIndex;
+    std::vector<Card> lastPlayedCards;
+    
+    // --- Funções de Ajuda ---
+    void handlePlayerInput();
+    void handleAITurn();
+    void updatePlayerHandSprite();
+    void drawUITexts();
+    void setupNewRound();
 };
 
-\#endif // BAR\_SCENE\_HPP
+#endif // BAR_SCENE_HPP
