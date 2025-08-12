@@ -15,9 +15,9 @@ public:
     
 private:
     int selectedOption;
-    // Corrigido: As variáveis agora são do tipo TextSprite*
-    TextSprite* startText;
-    TextSprite* exitText;
+    //Muito feio com Texto
+    Sprite* startText;
+    Sprite* exitText;
 };
 
 #endif // MAIN_MENU_SCENE_HPP

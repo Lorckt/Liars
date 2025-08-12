@@ -4,9 +4,9 @@
 #include "BarScene.hpp"
 
 MainMenuScene::MainMenuScene() : Fase("MainMenu", Sprite("rsc/fundo.img")), selectedOption(0) {
-    // Corrigido: Inicializando TextSprite diretamente
-    startText = new TextSprite("Iniciar Jogo");
-    exitText = new TextSprite("Sair");
+
+    startText = new Sprite("rsc/iniciar.img");
+    exitText = new Sprite("rsc/sair.img");
 }
 
 MainMenuScene::~MainMenuScene() {
