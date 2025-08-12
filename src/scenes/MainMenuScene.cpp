@@ -4,8 +4,8 @@
 #include "BarScene.hpp"
 
 MainMenuScene::MainMenuScene() : Fase("MainMenu", Sprite("rsc/fundo.img")), selectedOption(0) {
-    startText = new FontSprite("Iniciar Jogo");
-    exitText = new FontSprite("Sair");
+    startText = new FontSprite("INICIAR JOGO");
+    exitText = new FontSprite("SAIR");
 }
 
 MainMenuScene::~MainMenuScene() {
@@ -37,23 +37,24 @@ unsigned MainMenuScene::run(SpriteBuffer& tela) {
     char input = Keyboard::read();
 
     switch(input) {
-        case 's':
-        case 'S':
-            selectedOption = 1;
-            break;
-        case 'w':
-        case 'W':
-            selectedOption = 0;
-            break;
-        case 13: // Enter
-            if (selectedOption == 0) {
-                return Fase::LEVEL_1;
-            } else {
-                return Fase::END_GAME;
-            }
-        case 27: // ESC
-            return Fase::END_GAME;
-    }
+    case 's':
+    case 'S':
+        selectedOption = 1;
+        break;
+    case 'w':
+    case 'W':
+        selectedOption = 0;
+        break;
+    case 10: // Enter (código de Nova Linha)
+    case 13: // Enter (código de Retorno de Carro)
+        if (selectedOption == 0) {
+            return Fase::LEVEL_1; // Muda para a cena do jogo
+        } else {
+            return Fase::END_GAME; // Sai do jogo se "SAIR" estiver selecionado
+        }
+    case 27: // ESC
+        return Fase::END_GAME;
+}
 
     return Fase::PLAYING;
 }
