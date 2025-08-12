@@ -30,7 +30,8 @@ private:
     FontSprite* promptText;
     FontSprite* tableCardText;
     FontSprite* resultText;
-
+    std::string resultString; // <<< ADICIONE ESTA LINHA
+    
     Sprite cardFrontTemplate;
     Sprite cardBackSprite;
 

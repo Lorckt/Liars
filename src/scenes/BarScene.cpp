@@ -132,17 +132,17 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 Player* accused = table->getPlayer(lastPlayerIndex);
                 
                 if(wasLie) {
-                    resultText->setText(accused->getName() + " MENTIU! Roleta Russa para ele...");
-                    if(table->performRussianRoulette(lastPlayerIndex)) {
-                        // Corrigido Erro 3: de getLect para getText
-                        resultText->setText(resultText->getText() + " E MORREU!");
-                    }
-                } else {
-                    resultText->setText(accused->getName() + " falou a verdade! Roleta Russa para voce...");
-                    if(table->performRussianRoulette(table->getCurrentPlayerIndex())) {
-                         resultText->setText(resultText->getText() + " E MORREU!");
-                    }
-                }
+    resultString = accused->getName() + " MENTIU! Roleta Russa para ele...";
+    if(table->performRussianRoulette(lastPlayerIndex)) {
+        resultString += " E MORREU!"; // Usamos a nossa string
+    }
+} else {
+    resultString = accused->getName() + " falou a verdade! Roleta Russa para voce...";
+    if(table->performRussianRoulette(table->getCurrentPlayerIndex())) {
+         resultString += " E MORREU!"; // Usamos a nossa string
+    }
+}
+resultText->setText(resultString); // Agora definimos o texto no FontSprite
                 currentState = GameState::SHOW_RESULT;
             }
             break;
