@@ -1,24 +1,24 @@
 #include "BarScene.hpp"
-#include "ASCII_Engine/input/Keyboard.hpp"
+#include "input/Keyboard.hpp"
 #include "MainMenuScene.hpp"
 #include <sstream>
 #include <thread>
 #include <chrono>
 
-BarScene::BarScene() : Fase("BarScene", Sprite("rsc/fundo.img")), selectedCardIndex(0), lastPlayerIndex(-1) {
+BarScene::BarScene() : 
+    Fase("BarScene", Sprite("rsc/fundo.img")), 
+    selectedCardIndex(0), 
+    lastPlayerIndex(-1),
+    // Corrigido Erro 1: Inicializando os sprites aqui
+    cardFrontTemplate("rsc/carta_frente.img"),
+    cardBackSprite("rsc/carta_frente.img") // Usando a frente por enquanto
+{
     table = std::make_unique<Table>(std::vector<std::string>{"Voce", "Billy", "Anna"});
     
     statusText = new FontSprite("");
     promptText = new FontSprite("");
     tableCardText = new FontSprite("");
     resultText = new FontSprite("");
-
-    try {
-        cardFrontTemplate = Sprite("rsc/carta_frente.img");
-        cardBackSprite = Sprite("rsc/carta_frente.img"); // Usando a frente por enquanto
-    } catch (const std::exception& e) {
-        // Tratar erro
-    }
     
     setupNewRound();
 }
@@ -49,8 +49,8 @@ unsigned BarScene::run(SpriteBuffer& tela) {
     if (currentState == GameState::AI_TURN) {
         handleAITurn(tela);
     } else if (currentState == GameState::SHOW_RESULT) {
-        // Lógica para mostrar o resultado
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        drawScreen(tela); // Mostra o resultado
+        std::this_thread::sleep_for(std::chrono::seconds(4));
         if(table->getLivingPlayerCount() <= 1) {
             currentState = GameState::GAME_OVER;
         } else {
@@ -63,34 +63,38 @@ unsigned BarScene::run(SpriteBuffer& tela) {
         if (input == 13) return Fase::MENU;
     }
 
-    handlePlayerInput(tela); // Centraliza o redesenho e input do jogador
-
     if (currentState == GameState::PLAYER_TURN) {
-        return Fase::PLAYING;
+        handlePlayerInput(tela);
     }
     
+    drawScreen(tela);
     return Fase::PLAYING;
 }
 
 void BarScene::drawScreen(SpriteBuffer& tela) {
     tela.clear();
-    background->draw(tela, 0, 0);
-    for (auto& cardObj : handCardObjects) cardObj->draw(tela);
-    for (auto& cardObj : tableCardObjects) cardObj->draw(tela);
+    // Corrigido Erro 2: Adicionado x=0, y=0
+    background->draw(tela, 0, 0); 
+    for (auto& cardObj : handCardObjects) {
+        // Corrigido Erro 2: Usando as posições do próprio objeto
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
+    for (auto& cardObj : tableCardObjects) {
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
     drawUI(tela);
-    show(tela);
+    show(tela); // Imprime a tela no console
 }
 
 void BarScene::handlePlayerInput(SpriteBuffer& tela) {
     Player* player = table->getCurrentPlayer();
-    if (!player || !player->isHuman() || currentState != GameState::PLAYER_TURN) {
-        return; // Só processa input se for turno do jogador humano
+    if (!player || !player->isHuman()) {
+        return;
     }
     
-    updateHandCardObjects(); // Garante que a carta selecionada seja destacada
-    drawScreen(tela); // Desenha a tela antes de esperar o input
+    updateHandCardObjects();
 
-    char input = Keyboard::read(); // Espera por uma tecla
+    char input = Keyboard::read();
 
     switch(input) {
         case 'd':
@@ -110,7 +114,6 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 lastPlayedCards = player->playCards({selectedCardIndex});
                 lastPlayerIndex = table->getCurrentPlayerIndex();
                 
-                for(auto obj : tableCardObjects) delete obj;
                 tableCardObjects.clear();
                 for(size_t i = 0; i < lastPlayedCards.size(); ++i) {
                     ObjetoDeJogo* cardObj = new ObjetoDeJogo("tablecard", cardBackSprite, 10, 55 + i * 5);
@@ -131,6 +134,7 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 if(wasLie) {
                     resultText->setText(accused->getName() + " MENTIU! Roleta Russa para ele...");
                     if(table->performRussianRoulette(lastPlayerIndex)) {
+                        // Corrigido Erro 3: de getLect para getText
                         resultText->setText(resultText->getText() + " E MORREU!");
                     }
                 } else {
@@ -142,10 +146,6 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 currentState = GameState::SHOW_RESULT;
             }
             break;
-        case 27: // ESC
-            // Este retorno deveria ser pego no loop principal, mas por segurança:
-            // return Fase::END_GAME;
-            break;
     }
 }
 
@@ -156,10 +156,9 @@ void BarScene::handleAITurn(SpriteBuffer& tela) {
 
     Player* player = table->getCurrentPlayer();
     if(player && !player->isHuman() && !player->getHand().empty()) {
-        lastPlayedCards = player->playCards({0}); // IA Simples
+        lastPlayedCards = player->playCards({0});
         lastPlayerIndex = table->getCurrentPlayerIndex();
         
-        for(auto obj : tableCardObjects) delete obj;
         tableCardObjects.clear();
         for(size_t i = 0; i < lastPlayedCards.size(); ++i) {
             ObjetoDeJogo* cardObj = new ObjetoDeJogo("tablecard", cardBackSprite, 10, 55 + i*5);
@@ -191,8 +190,8 @@ void BarScene::updateHandCardObjects() {
     else if (hand.size() == 2) positions = {{25, 45}, {25, 75}};
     else if (hand.size() == 1) positions = {{25, 60}};
     
-    if(selectedCardIndex >= 0 && (size_t)selectedCardIndex < positions.size()){
-        positions[selectedCardIndex].first -= 2; // Destaca a carta selecionada movendo-a para cima
+    if(!positions.empty() && selectedCardIndex >= 0 && (size_t)selectedCardIndex < positions.size()){
+        positions[selectedCardIndex].first -= 2;
     }
 
     for (size_t i = 0; i < hand.size(); ++i) {
