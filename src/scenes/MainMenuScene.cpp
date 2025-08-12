@@ -1,9 +1,10 @@
 #include "MainMenuScene.hpp"
+#include "SpriteBuffer.hpp"
 #include "input/Keyboard.hpp"
 #include "core/BaseColor.hpp"
 #include "BarScene.hpp"
 
-MainMenuScene::MainMenuScene() : Fase("MainMenu", Sprite("rsc/fundo.img")), selectedOption(0) {
+MainMenuScene::MainMenuScene() : Fase("MainMenu", SpriteBuffer(1,1)), selectedOption(0) {
 
     startText = new Sprite("rsc/iniciar.img");
     exitText = new Sprite("rsc/sair.img");
@@ -21,7 +22,6 @@ void MainMenuScene::init() {
 // Corrigido: Removido o 'T' extra no nome da classe
 unsigned MainMenuScene::run(SpriteBuffer& tela) {
     tela.clear();
-    background->draw(tela, 0, 0);
 
     // Corrigido: Chamando setCor diretamente no TextSprite
     if (selectedOption == 0) {

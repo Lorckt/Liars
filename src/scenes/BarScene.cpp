@@ -4,6 +4,8 @@
 #include <thread>
 #include <chrono>
 #include "SpriteBuffer.hpp"
+#include <locale>     
+#include <codecvt>
 
 BarScene::BarScene() :
     Fase("BarScene", SpriteBuffer(1,1)), // Inicializa a base com um sprite vazio
@@ -177,28 +179,48 @@ void BarScene::processShowResult(SpriteBuffer& tela) {
 void BarScene::updateHandObjects() {
     for (auto obj : handCardObjects) delete obj;
     handCardObjects.clear();
-    Player* player = table->getPlayer(0);
+
+    Player* player = table->getPlayer(0); // Assumindo que o jogador 0 é o humano
     if (!player) return;
+
     const auto& hand = player->getHand();
-    if ((size_t)selectedCardIndex >= hand.size() && !hand.empty()) {
+    if (hand.empty()) {
+        selectedCardIndex = -1;
+        return;
+    }
+
+    if ((size_t)selectedCardIndex >= hand.size()) {
         selectedCardIndex = hand.size() - 1;
     }
 
+    // Posições pré-definidas para as cartas na mão
     std::vector<std::pair<int, int>> positions;
     if (hand.size() == 5) positions = {{80, 5}, {80, 25}, {80, 45}, {80, 65}, {80, 85}};
     else if (hand.size() == 4) positions = {{80, 10}, {80, 35}, {80, 60}, {80, 85}};
     else if (hand.size() == 3) positions = {{80, 15}, {80, 45}, {80, 75}};
     else if (hand.size() == 2) positions = {{80, 25}, {80, 55}};
     else if (hand.size() == 1) positions = {{80, 45}};
-    
+
+    // Eleva a carta selecionada
     if(!positions.empty() && selectedCardIndex >= 0 && (size_t)selectedCardIndex < positions.size()){
         positions[selectedCardIndex].first -= 2;
     }
+
+    // Converte wchar_t para string UTF-8
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+
     for (size_t i = 0; i < hand.size(); ++i) {
-        Sprite cardSprite = cardFrontTemplate;
+        Sprite cardSprite = cardFrontTemplate; // Cria uma cópia da carta em branco
         const auto& card = hand[i];
+
+        // Pega o valor e o símbolo
         std::string val = card.valueToString();
-        cardSprite.putAt(TextSprite(val, card.getSuitColor()), 1, 2);
+        std::string sym = converter.to_bytes(card.suitToSymbol());
+
+        // Desenha o valor e o símbolo no sprite da carta
+        cardSprite.putAt(TextSprite(val, card.getSuitColor()), 1, 1);
+        cardSprite.putAt(TextSprite(sym, card.getSuitColor()), 3, 2);
+
         ObjetoDeJogo* cardObj = new ObjetoDeJogo("card" + std::to_string(i), cardSprite, positions[i].first, positions[i].second);
         handCardObjects.push_back(cardObj);
     }
