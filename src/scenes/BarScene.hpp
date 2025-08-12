@@ -44,7 +44,7 @@ private:
     int lastPlayerIndex;
     std::vector<Card> lastPlayedCards;
     
-    void handlePlayerInput(SpriteBuffer& tela);
+    unsigned handlePlayerInput(SpriteBuffer& tela); // Mudamos de void para unsigned
     void handleAITurn(SpriteBuffer& tela);
     void updateHandCardObjects();
     void drawUI(SpriteBuffer& tela);

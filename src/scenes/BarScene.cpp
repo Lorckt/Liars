@@ -47,8 +47,10 @@ void BarScene::setupNewRound() {
 
 unsigned BarScene::run(SpriteBuffer& tela) {
     if (currentState == GameState::PLAYER_TURN) {
-        handlePlayerInput(tela);
-    } else if (currentState == GameState::AI_TURN) {
+        if (handlePlayerInput(tela) == Fase::END_GAME) {
+            return Fase::END_GAME;
+    }
+} else if (currentState == GameState::AI_TURN) {
         handleAITurn(tela);
     } else if (currentState == GameState::SHOW_RESULT) {
         drawScreen(tela);
@@ -83,7 +85,7 @@ void BarScene::drawScreen(SpriteBuffer& tela) {
     show(tela);
 }
 
-void BarScene::handlePlayerInput(SpriteBuffer& tela) {
+unsigned BarScene::handlePlayerInput(SpriteBuffer& tela) {
     Player* player = table->getCurrentPlayer();
     if (!player || !player->isHuman()) {
         return;
@@ -146,6 +148,8 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 currentState = GameState::SHOW_RESULT;
             }
             break;
+        case 27: // Tecla ESC
+            return Fase::END_GAME;
     }
 
     if (actionTaken) {
@@ -153,6 +157,7 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
         Player* nextPlayer = table->getCurrentPlayer();
         currentState = nextPlayer->isHuman() ? GameState::PLAYER_TURN : GameState::AI_TURN;
     }
+        return Fase::PLAYING;
 }
 
 void BarScene::handleAITurn(SpriteBuffer& tela) {
