@@ -16,7 +16,7 @@ int main() {
 
     try {
         // Aumentamos a tela para 200 colunas de largura e 120 de altura
-        SpriteBuffer tela(200, 120);
+        SpriteBuffer tela(360, 120);
         Fase* cenaAtual = new MainMenuScene();
         unsigned estado = Fase::MENU;
 

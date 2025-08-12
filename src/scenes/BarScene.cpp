@@ -3,17 +3,20 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include "SpriteBuffer.hpp"
 
 BarScene::BarScene() :
-    Fase("BarScene", Sprite("rsc/fundo.img")),
+    Fase("BarScene", SpriteBuffer(1,1)), // Inicializa a base com um sprite vazio
     selectedCardIndex(0),
     lastPlayerIndex(-1),
     needsRedraw(true),
     cardFrontTemplate("rsc/carta_frente.img"),
     cardBackSprite("rsc/carta_frente.img")
 {
-    table = std::make_unique<Table>(std::vector<std::string>{"Voce", "Billy", "Anna"});
-    
+    background_topo = new Sprite("rsc/fundo_bar_camadao1.img");
+    background_baixo = new Sprite("rsc/fundo_bar_camadao2.img");
+
+    table = std::make_unique<Table>(std::vector<std::string>{"Voce", "Billy", "Anna"});    
     statusText = new TextSprite("");
     promptText = new TextSprite("");
     tableCardText = new TextSprite("");
@@ -23,6 +26,8 @@ BarScene::BarScene() :
 }
 
 BarScene::~BarScene() {
+    delete background_topo;
+    delete background_baixo;
     for (auto obj : handCardObjects) delete obj;
     for (auto obj : tableCardObjects) delete obj;
     delete statusText;
@@ -45,21 +50,6 @@ void BarScene::setupNewRound() {
     needsRedraw = true;
 }
 
-void BarScene::render(SpriteBuffer& tela) {
-    tela.clear();
-    background->draw(tela, 0, 0);
-    
-    for (auto& cardObj : tableCardObjects) {
-        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
-    }
-    for (auto& cardObj : handCardObjects) {
-        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
-    }
-    
-    drawUI(tela);
-    
-    show(tela);
-}
 
 unsigned BarScene::run(SpriteBuffer& tela) {
     if (needsRedraw) {
@@ -215,36 +205,71 @@ void BarScene::updateHandObjects() {
 }
 
 void BarScene::drawUI(SpriteBuffer& tela) {
+    int coluna_ui = 305; // Posição X onde o painel de informações começa
     int linhaAtual = 10;
+
+    statusText->setText("--- JOGADORES ---");
+    statusText->draw(tela, linhaAtual, coluna_ui);
+    linhaAtual += 2;
+
     for (int i = 0; i < table->getPlayerCount(); ++i) {
         Player* player = table->getPlayer(i);
         if (player) {
             std::string info = player->getName() + " - Roletas: " + std::to_string(player->getRouletteCount());
+            if (!player->isAlive()) {
+                info += " (Morto)";
+            }
             statusText->setText(info);
-            statusText->draw(tela, linhaAtual, 120);
+            statusText->draw(tela, linhaAtual, coluna_ui);
             linhaAtual += 2;
         }
     }
-    
-    linhaAtual += 2;
+
+    linhaAtual += 4; // Espaço extra
     Card tempCard(table->getTableCardValue(), CardSuit::NONE);
     tableCardText->setText("Carta da Mesa: " + tempCard.valueToString());
-    tableCardText->draw(tela, linhaAtual, 120);
+    tableCardText->draw(tela, linhaAtual, coluna_ui);
 
-    Player* player = table->getCurrentPlayer();
-    if (player && player->isHuman()) {
-        promptText->setText("Use [A] e [D] para selecionar.");
-        promptText->draw(tela, 80, 120);
-        
-        promptText->setText("[ENTER] para jogar.");
-        promptText->draw(tela, 81, 120);
+    Player* currentPlayer = table->getCurrentPlayer();
+    if (currentPlayer && currentPlayer->isHuman()) {
+         promptText->setText("Use [A] e [D] para selecionar.");
+         promptText->draw(tela, 90, coluna_ui);
 
-        if(lastPlayerIndex != -1) {
-             promptText->setText("[L] para chamar mentiroso!");
-             promptText->draw(tela, 82, 120);
-        }
+         promptText->setText("[ENTER] para jogar.");
+         promptText->draw(tela, 91, coluna_ui);
+
+         if(lastPlayerIndex != -1) {
+              promptText->setText("[L] para chamar mentiroso!");
+              promptText->draw(tela, 92, coluna_ui);
+         }
     }
-    
+
     resultText->setText(resultString);
-    resultText->draw(tela, 40, 120);
+    resultText->draw(tela, 60, coluna_ui);
+}
+
+void BarScene::render(SpriteBuffer& tela) {
+    tela.clear();
+
+    // 1. Desenha a camada de cima do fundo
+    background_topo->draw(tela, 0, 0);
+
+    // 2. Calcula onde a camada de baixo começa, deixando um espaço de 15 linhas
+    int linha_inicio_baixo = background_topo->getAltura() + 15;
+
+    // 3. Desenha a camada de baixo do fundo
+    background_baixo->draw(tela, linha_inicio_baixo, 0);
+
+    // 4. Desenha os objetos do jogo (cartas, etc.)
+    for (auto& cardObj : tableCardObjects) {
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
+    for (auto& cardObj : handCardObjects) {
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
+
+    // 5. Desenha o painel de UI à direita
+    drawUI(tela);
+
+    show(tela);
 }

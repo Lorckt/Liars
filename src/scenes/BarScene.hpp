@@ -26,6 +26,7 @@ public:
     virtual void init() override;
 
 private:
+
     void processInput(char input);
     void processAITurn(SpriteBuffer& tela);
     void processShowResult(SpriteBuffer& tela);
@@ -43,7 +44,9 @@ private:
     TextSprite* tableCardText;
     TextSprite* resultText;
     std::string resultString;
-
+    
+    Sprite* background_topo;
+    Sprite* background_baixo;
     Sprite cardFrontTemplate;
     Sprite cardBackSprite;
 
