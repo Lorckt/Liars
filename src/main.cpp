@@ -1,4 +1,4 @@
-#include "Fase.hpp" // Corrigido
+#include "ASCII_Engine/Fase.hpp"
 #include "scenes/MainMenuScene.hpp"
 #include "scenes/BarScene.hpp"
 #include <iostream>
@@ -15,21 +15,30 @@ int main() {
     setupConsole();
 
     try {
+        // Aumentamos a tela para 200 colunas de largura e 120 de altura
+        SpriteBuffer tela(200, 120);
         Fase* cenaAtual = new MainMenuScene();
-        SpriteBuffer tela(180, 110);
-
         unsigned estado = Fase::MENU;
-        while(estado != Fase::END_GAME)
-        {
-            if (cenaAtual)
-                estado = cenaAtual->run(tela);
 
-            if(estado == Fase::LEVEL_1) {
-                delete cenaAtual;
-                cenaAtual = new BarScene();
+        while (true) {
+            if (cenaAtual) {
+                estado = cenaAtual->run(tela);
+            }
+
+            if (estado == Fase::END_GAME) {
+                break; // Sai do loop para encerrar o jogo
+            }
+
+            Fase* proximaCena = nullptr;
+            if (estado == Fase::LEVEL_1) {
+                proximaCena = new BarScene();
             } else if (estado == Fase::MENU) {
+                proximaCena = new MainMenuScene();
+            }
+
+            if (proximaCena) {
                 delete cenaAtual;
-                cenaAtual = new MainMenuScene();
+                cenaAtual = proximaCena;
             }
         }
         delete cenaAtual;

@@ -1,12 +1,11 @@
 #ifndef BAR_SCENE_HPP
 #define BAR_SCENE_HPP
 
-#include "Fase.hpp"
+#include "ASCII_Engine/Fase.hpp"
 #include "gameObjects/Table.hpp"
-#include "TextSprite.hpp" // Garante que o tipo correto seja incluído
-#include "Sprite.hpp"
-#include "ObjetoDeJogo.hpp"
-#include "utils/Drawer.hpp"
+#include "ASCII_Engine/TextSprite.hpp"
+#include "ASCII_Engine/Sprite.hpp"
+#include "ASCII_Engine/ObjetoDeJogo.hpp"
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -27,25 +26,18 @@ public:
     virtual void init() override;
 
 private:
-    // Funções de Lógica
     void processInput(char input);
-    void processAITurn();
-    void processShowResult();
-
-    // Função Central de Desenho
+    void processAITurn(SpriteBuffer& tela);
+    void processShowResult(SpriteBuffer& tela);
     void render(SpriteBuffer& tela);
-
-    // Funções Auxiliares
     void updateHandObjects();
     void drawUI(SpriteBuffer& tela);
     void setupNewRound();
 
-    // Variáveis de Estado
     std::unique_ptr<Table> table;
     GameState currentState;
     bool needsRedraw;
 
-    // Sprites e Textos (Corrigido para TextSprite*)
     TextSprite* statusText;
     TextSprite* promptText;
     TextSprite* tableCardText;

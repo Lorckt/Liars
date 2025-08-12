@@ -1,12 +1,12 @@
 #include "BarScene.hpp"
-#include "input/Keyboard.hpp"
+#include "ASCII_Engine/input/Keyboard.hpp"
 #include <sstream>
 #include <thread>
 #include <chrono>
 
-BarScene::BarScene() : 
-    Fase("BarScene", Sprite("rsc/fundo.img")), 
-    selectedCardIndex(0), 
+BarScene::BarScene() :
+    Fase("BarScene", Sprite("rsc/fundo.img")),
+    selectedCardIndex(0),
     lastPlayerIndex(-1),
     needsRedraw(true),
     cardFrontTemplate("rsc/carta_frente.img"),
@@ -41,8 +41,24 @@ void BarScene::setupNewRound() {
     for (auto obj : tableCardObjects) delete obj;
     tableCardObjects.clear();
     currentState = table->getCurrentPlayer()->isHuman() ? GameState::PLAYER_TURN : GameState::AI_TURN;
-    updateHandObjects(); 
+    updateHandObjects();
     needsRedraw = true;
+}
+
+void BarScene::render(SpriteBuffer& tela) {
+    tela.clear();
+    background->draw(tela, 0, 0);
+    
+    for (auto& cardObj : tableCardObjects) {
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
+    for (auto& cardObj : handCardObjects) {
+        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
+    }
+    
+    drawUI(tela);
+    
+    show(tela);
 }
 
 unsigned BarScene::run(SpriteBuffer& tela) {
@@ -56,9 +72,9 @@ unsigned BarScene::run(SpriteBuffer& tela) {
         if (input == 27) return Fase::END_GAME;
         processInput(input);
     } else if (currentState == GameState::AI_TURN) {
-        processAITurn();
+        processAITurn(tela);
     } else if (currentState == GameState::SHOW_RESULT) {
-        processShowResult();
+        processShowResult(tela);
     } else if (currentState == GameState::GAME_OVER) {
         resultString = "Fim de Jogo! Pressione Enter para voltar ao menu.";
         needsRedraw = true;
@@ -68,22 +84,6 @@ unsigned BarScene::run(SpriteBuffer& tela) {
     }
     
     return Fase::PLAYING;
-}
-
-void BarScene::render(SpriteBuffer& tela) {
-    tela.clear();
-    background->draw(tela, 0, 0); 
-    
-    for (auto& cardObj : tableCardObjects) {
-        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
-    }
-    for (auto& cardObj : handCardObjects) {
-        cardObj->draw(tela, cardObj->getPosL(), cardObj->getPosC());
-    }
-    
-    drawUI(tela);
-    
-    show(tela);
 }
 
 void BarScene::processInput(char input) {
@@ -106,8 +106,8 @@ void BarScene::processInput(char input) {
                 needsRedraw = true;
             }
             break;
-        case 13: 
-        case 10: 
+        case 13:
+        case 10:
             if (!player->getHand().empty()) {
                 lastPlayedCards = player->playCards({selectedCardIndex});
                 lastPlayerIndex = table->getCurrentPlayerIndex();
@@ -146,11 +146,10 @@ void BarScene::processInput(char input) {
     updateHandObjects();
 }
 
-void BarScene::processAITurn() {
+void BarScene::processAITurn(SpriteBuffer& tela) {
     resultString = table->getCurrentPlayer()->getName() + " esta a pensar...";
     needsRedraw = true;
-    SpriteBuffer dummyBuffer(180, 110);
-    render(dummyBuffer);
+    render(tela);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     Player* player = table->getCurrentPlayer();
@@ -172,10 +171,9 @@ void BarScene::processAITurn() {
     updateHandObjects();
 }
 
-void BarScene::processShowResult() {
+void BarScene::processShowResult(SpriteBuffer& tela) {
     needsRedraw = true;
-    SpriteBuffer dummyBuffer(180, 110);
-    render(dummyBuffer);
+    render(tela);
     std::this_thread::sleep_for(std::chrono::seconds(4));
 
     if(table->getLivingPlayerCount() <= 1) {
@@ -196,7 +194,6 @@ void BarScene::updateHandObjects() {
         selectedCardIndex = hand.size() - 1;
     }
 
-    // --- COORDENADAS DAS CARTAS NA MÃO ---
     std::vector<std::pair<int, int>> positions;
     if (hand.size() == 5) positions = {{80, 5}, {80, 25}, {80, 45}, {80, 65}, {80, 85}};
     else if (hand.size() == 4) positions = {{80, 10}, {80, 35}, {80, 60}, {80, 85}};
@@ -218,24 +215,22 @@ void BarScene::updateHandObjects() {
 }
 
 void BarScene::drawUI(SpriteBuffer& tela) {
-    // --- COORDENADAS DA INTERFACE (TEXTOS) ---
-    // Coluna (segundo número) > 115 para ficar na área preta da direita
-
-    // Informações dos jogadores
     int linhaAtual = 10;
-    for(const auto& player : table->getPlayers()) {
-        std::string info = player->getName() + " - Roletas: " + std::to_string(player->getRouletteCount());
-        statusText->setText(info);
-        statusText->draw(tela, linhaAtual, 120);
-        linhaAtual += 2;
+    for (int i = 0; i < table->getPlayerCount(); ++i) {
+        Player* player = table->getPlayer(i);
+        if (player) {
+            std::string info = player->getName() + " - Roletas: " + std::to_string(player->getRouletteCount());
+            statusText->setText(info);
+            statusText->draw(tela, linhaAtual, 120);
+            linhaAtual += 2;
+        }
     }
     
     linhaAtual += 2;
-    Card tempCard(table->getTableCardValue(), CardSuit::NONE); 
+    Card tempCard(table->getTableCardValue(), CardSuit::NONE);
     tableCardText->setText("Carta da Mesa: " + tempCard.valueToString());
     tableCardText->draw(tela, linhaAtual, 120);
 
-    // Prompt de ações para o jogador
     Player* player = table->getCurrentPlayer();
     if (player && player->isHuman()) {
         promptText->setText("Use [A] e [D] para selecionar.");
@@ -250,7 +245,6 @@ void BarScene::drawUI(SpriteBuffer& tela) {
         }
     }
     
-    // Mensagem de resultado (ex: "MENTIU!")
     resultText->setText(resultString);
     resultText->draw(tela, 40, 120);
 }

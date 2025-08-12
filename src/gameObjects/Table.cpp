@@ -109,3 +109,7 @@ bool Table::performRussianRoulette(int playerIndex) {
     }
     return false;
 }
+
+int Table::getPlayerCount() const {
+    return players.size();
+}
