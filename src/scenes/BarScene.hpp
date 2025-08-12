@@ -1,7 +1,7 @@
 #ifndef BAR_SCENE_HPP
 #define BAR_SCENE_HPP
 
-#include "ASCII_Engine/Fase.hpp"
+#include "Fase.hpp"
 #include "gameObjects/Table.hpp"
 #include "ASCII_Engine/TextSprite.hpp"
 #include "ASCII_Engine/Sprite.hpp"
