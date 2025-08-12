@@ -3,7 +3,7 @@
 
 #include "Fase.hpp"
 #include "gameObjects/Table.hpp"
-#include "TextSprite.hpp" // Corrigido
+#include "TextSprite.hpp"
 #include "Sprite.hpp"
 #include "ObjetoDeJogo.hpp"
 #include "utils/Drawer.hpp"
@@ -12,7 +12,10 @@
 #include <iostream>
 
 enum class GameState {
-    PLAYER_TURN, AI_TURN, SHOW_RESULT, GAME_OVER
+    PLAYER_TURN,
+    AI_TURN,
+    SHOW_RESULT,
+    GAME_OVER
 };
 
 class BarScene : public Fase {
@@ -24,10 +27,25 @@ public:
     virtual void init() override;
 
 private:
+    // Funções de Lógica
+    void processInput(char input);
+    void processAITurn();
+    void processShowResult();
+
+    // Função Central de Desenho
+    void render(SpriteBuffer& tela);
+
+    // Funções Auxiliares
+    void updateHandObjects();
+    void drawUI(SpriteBuffer& tela);
+    void setupNewRound();
+
+    // Variáveis de Estado
     std::unique_ptr<Table> table;
     GameState currentState;
+    bool needsRedraw;
 
-    // Corrigido para TextSprite
+    // Sprites e Textos
     TextSprite* statusText;
     TextSprite* promptText;
     TextSprite* tableCardText;
@@ -43,13 +61,6 @@ private:
     int selectedCardIndex;
     int lastPlayerIndex;
     std::vector<Card> lastPlayedCards;
-    
-    unsigned handlePlayerInput(SpriteBuffer& tela); // Mudamos de void para unsigned
-    void handleAITurn(SpriteBuffer& tela);
-    void updateHandCardObjects();
-    void drawUI(SpriteBuffer& tela);
-    void setupNewRound();
-    void drawScreen(SpriteBuffer& tela);
 };
 
 #endif // BAR_SCENE_HPP
