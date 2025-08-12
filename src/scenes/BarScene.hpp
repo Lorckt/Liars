@@ -3,7 +3,7 @@
 
 #include "Fase.hpp"
 #include "gameObjects/Table.hpp"
-#include "TextSprite.hpp"
+#include "TextSprite.hpp" // Garante que o tipo correto seja incluído
 #include "Sprite.hpp"
 #include "ObjetoDeJogo.hpp"
 #include "utils/Drawer.hpp"
@@ -45,7 +45,7 @@ private:
     GameState currentState;
     bool needsRedraw;
 
-    // Sprites e Textos
+    // Sprites e Textos (Corrigido para TextSprite*)
     TextSprite* statusText;
     TextSprite* promptText;
     TextSprite* tableCardText;

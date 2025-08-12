@@ -1,9 +1,9 @@
 #ifndef MAIN_MENU_SCENE_HPP
 #define MAIN_MENU_SCENE_HPP
 
-#include "Fase.hpp" // Corrigido
-#include "Sprite.hpp" // Corrigido
-#include "FontSprite.hpp" // Corrigido
+#include "Fase.hpp"
+#include "Sprite.hpp"
+#include "TextSprite.hpp" // Garante que o tipo correto seja incluído
 
 class MainMenuScene : public Fase {
 public:
@@ -15,8 +15,9 @@ public:
     
 private:
     int selectedOption;
-    FontSprite* startText;
-    FontSprite* exitText;
+    // Corrigido: As variáveis agora são do tipo TextSprite*
+    TextSprite* startText;
+    TextSprite* exitText;
 };
 
 #endif // MAIN_MENU_SCENE_HPP

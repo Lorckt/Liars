@@ -53,7 +53,7 @@ unsigned BarScene::run(SpriteBuffer& tela) {
 
     if (currentState == GameState::PLAYER_TURN) {
         char input = Keyboard::read();
-        if (input == 27) return Fase::END_GAME; // Sair com ESC
+        if (input == 27) return Fase::END_GAME;
         processInput(input);
     } else if (currentState == GameState::AI_TURN) {
         processAITurn();
@@ -62,7 +62,7 @@ unsigned BarScene::run(SpriteBuffer& tela) {
     } else if (currentState == GameState::GAME_OVER) {
         resultString = "Fim de Jogo! Pressione Enter para voltar ao menu.";
         needsRedraw = true;
-        render(tela); // Renderiza a mensagem final
+        render(tela);
         char input = Keyboard::read();
         if (input == 13 || input == 10) return Fase::MENU;
     }
@@ -82,9 +82,7 @@ void BarScene::render(SpriteBuffer& tela) {
     }
     
     drawUI(tela);
-    resultText->setText(resultString);
-    resultText->draw(tela, 40, 120);
-
+    
     show(tela);
 }
 
@@ -151,8 +149,8 @@ void BarScene::processInput(char input) {
 void BarScene::processAITurn() {
     resultString = table->getCurrentPlayer()->getName() + " esta a pensar...";
     needsRedraw = true;
-    SpriteBuffer dummyBuffer(180, 110); // Criamos um buffer nomeado
-    render(dummyBuffer);                // Usamos a variável
+    SpriteBuffer dummyBuffer(180, 110);
+    render(dummyBuffer);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     Player* player = table->getCurrentPlayer();
@@ -175,10 +173,9 @@ void BarScene::processAITurn() {
 }
 
 void BarScene::processShowResult() {
-    // A mensagem de resultado já foi definida, apenas esperamos
     needsRedraw = true;
-    SpriteBuffer dummyBuffer(180, 110); // Criamos um buffer nomeado
-    render(dummyBuffer);                // Usamos a variável
+    SpriteBuffer dummyBuffer(180, 110);
+    render(dummyBuffer);
     std::this_thread::sleep_for(std::chrono::seconds(4));
 
     if(table->getLivingPlayerCount() <= 1) {
@@ -198,12 +195,15 @@ void BarScene::updateHandObjects() {
     if ((size_t)selectedCardIndex >= hand.size() && !hand.empty()) {
         selectedCardIndex = hand.size() - 1;
     }
+
+    // --- COORDENADAS DAS CARTAS NA MÃO ---
     std::vector<std::pair<int, int>> positions;
     if (hand.size() == 5) positions = {{80, 5}, {80, 25}, {80, 45}, {80, 65}, {80, 85}};
     else if (hand.size() == 4) positions = {{80, 10}, {80, 35}, {80, 60}, {80, 85}};
     else if (hand.size() == 3) positions = {{80, 15}, {80, 45}, {80, 75}};
     else if (hand.size() == 2) positions = {{80, 25}, {80, 55}};
     else if (hand.size() == 1) positions = {{80, 45}};
+    
     if(!positions.empty() && selectedCardIndex >= 0 && (size_t)selectedCardIndex < positions.size()){
         positions[selectedCardIndex].first -= 2;
     }
@@ -218,26 +218,39 @@ void BarScene::updateHandObjects() {
 }
 
 void BarScene::drawUI(SpriteBuffer& tela) {
-    statusText->setText("Turno de: " + table->getCurrentPlayer()->getName());
-    statusText->draw(tela, 10, 120);
+    // --- COORDENADAS DA INTERFACE (TEXTOS) ---
+    // Coluna (segundo número) > 115 para ficar na área preta da direita
+
+    // Informações dos jogadores
+    int linhaAtual = 10;
+    for(const auto& player : table->getPlayers()) {
+        std::string info = player->getName() + " - Roletas: " + std::to_string(player->getRouletteCount());
+        statusText->setText(info);
+        statusText->draw(tela, linhaAtual, 120);
+        linhaAtual += 2;
+    }
+    
+    linhaAtual += 2;
     Card tempCard(table->getTableCardValue(), CardSuit::NONE); 
     tableCardText->setText("Carta da Mesa: " + tempCard.valueToString());
-    tableCardText->draw(tela, 12, 120);
-    std::stringstream prompt;
+    tableCardText->draw(tela, linhaAtual, 120);
+
+    // Prompt de ações para o jogador
     Player* player = table->getCurrentPlayer();
     if (player && player->isHuman()) {
-        prompt << "Use [A] e [D] para selecionar.";
-        promptText->setText(prompt.str());
+        promptText->setText("Use [A] e [D] para selecionar.");
         promptText->draw(tela, 80, 120);
-        prompt.str("");
-        prompt << "[ENTER] para jogar.";
-        promptText->setText(prompt.str());
+        
+        promptText->setText("[ENTER] para jogar.");
         promptText->draw(tela, 81, 120);
+
         if(lastPlayerIndex != -1) {
-             prompt.str("");
-             prompt << "[L] para chamar mentiroso!";
-             promptText->setText(prompt.str());
+             promptText->setText("[L] para chamar mentiroso!");
              promptText->draw(tela, 82, 120);
         }
     }
+    
+    // Mensagem de resultado (ex: "MENTIU!")
+    resultText->setText(resultString);
+    resultText->draw(tela, 40, 120);
 }
