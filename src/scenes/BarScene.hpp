@@ -3,9 +3,9 @@
 
 #include "Fase.hpp"
 #include "gameObjects/Table.hpp"
-#include "ASCII_Engine/TextSprite.hpp"
-#include "ASCII_Engine/Sprite.hpp"
-#include "ASCII_Engine/ObjetoDeJogo.hpp"
+#include "TextSprite.hpp"
+#include "Sprite.hpp"
+#include "ObjetoDeJogo.hpp"
 #include <memory>
 #include <vector>
 #include <iostream>

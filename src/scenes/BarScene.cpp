@@ -1,5 +1,5 @@
 #include "BarScene.hpp"
-#include "ASCII_Engine/input/Keyboard.hpp"
+#include "input/Keyboard.hpp"
 #include <sstream>
 #include <thread>
 #include <chrono>

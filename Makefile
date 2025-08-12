@@ -4,17 +4,16 @@ TARGET = LiarsBar
 # Compilador C++
 CXX = g++
 
-# Flags de compilação: 
-
+# Flags de compilação
 CXXFLAGS = -std=c++20 -g -Wall
 
-# Diretório da engine para os includes
-INCLUDES = -I./src -I./ASCII_Engine
+# Define o nome da pasta da engine aqui
+ENGINE_DIR = ASCII_Engine
 
 # Flags de include: Diz ao compilador para procurar ficheiros .hpp nestas pastas
-INCLUDES = -I./src -I$(ENGINE_DIR)
+INCLUDES = -I./src -I./$(ENGINE_DIR)
 
-# Bibliotecas a serem lincadas. Para Linux, use -lncurses.
+# Bibliotecas a serem lincadas
 LIBS = -lncurses
 
 # Encontra automaticamente todos os ficheiros .cpp
