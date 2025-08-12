@@ -1,14 +1,15 @@
 #ifndef BAR_SCENE_HPP
 #define BAR_SCENE_HPP
 
-#include "Fase.hpp" // Corrigido
+#include "Fase.hpp"
 #include "gameObjects/Table.hpp"
-#include "FontSprite.hpp" // Corrigido
-#include "Sprite.hpp" // Corrigido
-#include "ObjetoDeJogo.hpp" // Corrigido
-#include "utils/Drawer.hpp" // Corrigido
+#include "TextSprite.hpp" // Corrigido
+#include "Sprite.hpp"
+#include "ObjetoDeJogo.hpp"
+#include "utils/Drawer.hpp"
 #include <memory>
 #include <vector>
+#include <iostream>
 
 enum class GameState {
     PLAYER_TURN, AI_TURN, SHOW_RESULT, GAME_OVER
@@ -26,12 +27,13 @@ private:
     std::unique_ptr<Table> table;
     GameState currentState;
 
-    FontSprite* statusText;
-    FontSprite* promptText;
-    FontSprite* tableCardText;
-    FontSprite* resultText;
-    std::string resultString; // <<< ADICIONE ESTA LINHA
-    
+    // Corrigido para TextSprite
+    TextSprite* statusText;
+    TextSprite* promptText;
+    TextSprite* tableCardText;
+    TextSprite* resultText;
+    std::string resultString;
+
     Sprite cardFrontTemplate;
     Sprite cardBackSprite;
 
@@ -47,7 +49,7 @@ private:
     void updateHandCardObjects();
     void drawUI(SpriteBuffer& tela);
     void setupNewRound();
-    void drawScreen(SpriteBuffer& tela); // Adicionei a declaração que faltava
+    void drawScreen(SpriteBuffer& tela);
 };
 
 #endif // BAR_SCENE_HPP

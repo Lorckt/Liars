@@ -16,7 +16,7 @@ int main() {
 
     try {
         Fase* cenaAtual = new MainMenuScene();
-        SpriteBuffer tela(150, 40);
+        SpriteBuffer tela(180, 110);
 
         unsigned estado = Fase::MENU;
         while(estado != Fase::END_GAME)
