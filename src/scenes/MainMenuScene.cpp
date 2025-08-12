@@ -1,6 +1,6 @@
 #include "MainMenuScene.hpp"
-#include "ASCII_Engine/input/Keyboard.hpp"
-#include "ASCII_Engine/core/BaseColor.hpp"
+#include "input/Keyboard.hpp" // Corrigido
+#include "core/BaseColor.hpp" // Corrigido
 #include "BarScene.hpp"
 
 MainMenuScene::MainMenuScene() : Fase("MainMenu", Sprite("rsc/fundo.img")), selectedOption(0) {
@@ -18,10 +18,6 @@ void MainMenuScene::init() {
 }
 
 unsigned MainMenuScene::run(SpriteBuffer& tela) {
-    // A engine que você está usando parece não ter um método estático update() ou isKeyPressed().
-    // A leitura do teclado é feita diretamente com Keyboard::read().
-    // Vamos adaptar para um modo de input bloqueante simples.
-    
     tela.clear();
     background->draw(tela, 0, 0);
 
@@ -36,9 +32,9 @@ unsigned MainMenuScene::run(SpriteBuffer& tela) {
     startText->draw(tela, 15, 35);
     exitText->draw(tela, 17, 35);
 
-    show(tela); // Mostra o estado atual da tela
+    show(tela);
 
-    char input = Keyboard::read(); // Leitura bloqueante do teclado
+    char input = Keyboard::read();
 
     switch(input) {
         case 's':
@@ -49,13 +45,13 @@ unsigned MainMenuScene::run(SpriteBuffer& tela) {
         case 'W':
             selectedOption = 0;
             break;
-        case 13: // Código ASCII para Enter
+        case 13: // Enter
             if (selectedOption == 0) {
-                return Fase::LEVEL_1; // Muda para a cena do jogo
+                return Fase::LEVEL_1;
             } else {
-                return Fase::END_GAME; // Fecha o jogo
+                return Fase::END_GAME;
             }
-        case 27: // Código ASCII para ESC
+        case 27: // ESC
             return Fase::END_GAME;
     }
 
