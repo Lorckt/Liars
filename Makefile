@@ -4,8 +4,10 @@ TARGET = LiarsBar
 # Compilador C++
 CXX = g++
 
-# Flags de compilação: -std=c++17 para recursos modernos, -g para debug, -Wall para mais avisos
-CXXFLAGS = -std=c++17 -g -Wall
+# Flags de compilação: 
+# -std=c++20 para usar recursos modernos
+# -include <ranges> e -include <format> para forçar a inclusão dos cabeçalhos em todos os ficheiros
+CXXFLAGS = -std=c++20 -g -Wall -include ranges -include format
 
 # Diretório da engine para os includes
 ENGINE_DIR = ./ASCII_Engine
