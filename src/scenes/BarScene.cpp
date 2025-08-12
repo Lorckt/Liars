@@ -13,7 +13,7 @@ BarScene::BarScene() :
     cardFrontTemplate("rsc/carta_frente.img"),
     cardBackSprite("rsc/carta_frente.img") // Usando a frente por enquanto
 {
-    table = std::make_unique<Table>(std::vector<std::string>{"Voce", "Billy", "Anna"});
+    table = std::make_unique<Table>(std::vector<std::string>{"VOCE", "BILLY", "ANNA"});
     
     statusText = new FontSprite("");
     promptText = new FontSprite("");
@@ -131,18 +131,21 @@ void BarScene::handlePlayerInput(SpriteBuffer& tela) {
                 bool wasLie = table->checkLie(lastPlayedCards);
                 Player* accused = table->getPlayer(lastPlayerIndex);
                 
-                if(wasLie) {
-    resultString = accused->getName() + " MENTIU! Roleta Russa para ele...";
-    if(table->performRussianRoulette(lastPlayerIndex)) {
-        resultString += " E MORREU!"; // Usamos a nossa string
-    }
-} else {
-    resultString = accused->getName() + " falou a verdade! Roleta Russa para voce...";
-    if(table->performRussianRoulette(table->getCurrentPlayerIndex())) {
-         resultString += " E MORREU!"; // Usamos a nossa string
-    }
-}
-resultText->setText(resultString); // Agora definimos o texto no FontSprite
+                if (wasLie) {
+                // Corrigido: Texto em maiúsculas
+                resultString = accused->getName() + " MENTIU! ROLETA RUSSA PARA ELE...";
+                if(table->performRussianRoulette(lastPlayerIndex)) {
+                    resultString += " E MORREU!";
+                }
+            } else {
+                // Corrigido: Texto em maiúsculas
+                resultString = accused->getName() + " FALOU A VERDADE! ROLETA RUSSA PARA VOCE...";
+                if(table->performRussianRoulette(table->getCurrentPlayerIndex())) {
+                     resultString += " E MORREU!";
+                }
+            }
+            resultText->setText(resultString);
+
                 currentState = GameState::SHOW_RESULT;
             }
             break;
@@ -150,7 +153,7 @@ resultText->setText(resultString); // Agora definimos o texto no FontSprite
 }
 
 void BarScene::handleAITurn(SpriteBuffer& tela) {
-    promptText->setText(table->getCurrentPlayer()->getName() + " esta a pensar...");
+    promptText->setText(table->getCurrentPlayer()->getName() + " ESTA A PENSAR...");
     drawScreen(tela);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
@@ -207,19 +210,22 @@ void BarScene::updateHandCardObjects() {
 }
 
 void BarScene::drawUI(SpriteBuffer& tela) {
-    statusText->setText("Turno de: " + table->getCurrentPlayer()->getName());
+    // Corrigido: Texto em maiúsculas
+    statusText->setText("TURNO DE: " + table->getCurrentPlayer()->getName());
     statusText->draw(tela, 3, 2);
 
     Card tempCard(table->getTableCardValue(), CardSuit::NONE); 
-    tableCardText->setText("Carta da Mesa: " + tempCard.valueToString());
+    // Corrigido: Texto em maiúsculas
+    tableCardText->setText("CARTA DA MESA: " + tempCard.valueToString());
     tableCardText->draw(tela, 3, 40);
 
     std::stringstream prompt;
     Player* player = table->getCurrentPlayer();
     if (player && player->isHuman()) {
-        prompt << "Use [A] e [D] para selecionar. [ENTER] para jogar.";
+        // Corrigido: Texto em maiúsculas
+        prompt << "USE [A] E [D] PARA SELECIONAR. [ENTER] PARA JOGAR.";
         if(lastPlayerIndex != -1) {
-             prompt << " [L] para chamar MENTIROSO!";
+             prompt << " [L] PARA CHAMAR MENTIROSO!";
         }
     }
     promptText->setText(prompt.str());
