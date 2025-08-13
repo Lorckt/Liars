@@ -2,10 +2,11 @@
 #define BAR_SCENE_HPP
 
 #include "Fase.hpp"
-#include "gameObjects/Table.hpp"
 #include "TextSprite.hpp"
 #include "Sprite.hpp"
 #include "ObjetoDeJogo.hpp"
+#include "gameObjects/Table.hpp"
+#include "gameObjects/Card.hpp" // <-- Include crucial para a classe Card
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -26,7 +27,6 @@ public:
     virtual void init() override;
 
 private:
-
     void processInput(char input);
     void processAITurn(SpriteBuffer& tela);
     void processShowResult(SpriteBuffer& tela);
@@ -47,11 +47,13 @@ private:
     
     Sprite* background_topo;
     Sprite* background_baixo;
+    
+    // Um "molde" para a frente das cartas
     Sprite cardFrontTemplate;
-    Sprite cardBackSprite;
 
+    // Vetores que guardam os objetos visíveis no jogo
     std::vector<ObjetoDeJogo*> handCardObjects;
-    std::vector<ObjetoDeJogo*> tableCardObjects;
+    std::vector<ObjetoDeJogo*> tableCardObjects; // Mantemos para a lógica, mas não desenhamos
 
     int selectedCardIndex;
     int lastPlayerIndex;

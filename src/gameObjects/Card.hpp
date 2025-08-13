@@ -1,31 +1,26 @@
 #ifndef CARD_HPP
 #define CARD_HPP
 
+#include "Cores.hpp"
 #include <string>
-#include "core/BaseColor.hpp" // Corrigido
 
-enum class CardValue {
-    ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER
-};
-
-enum class CardSuit {
-    HEARTS, DIAMONDS, CLUBS, SPADES, NONE
-};
+enum CardValue { ACE = 1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER };
+enum CardSuit { HEARTS, DIAMONDS, CLUBS, SPADES, NONE };
 
 class Card {
-public:
-    Card(CardValue value, CardSuit suit);
-
-    CardValue getValue() const;
-    CardSuit getSuit() const;
-    COR::Cor getSuitColor() const;
-
-    std::string valueToString() const;
-    wchar_t suitToSymbol() const;
-
 private:
     CardValue value;
     CardSuit suit;
+
+public:
+    Card(CardValue v, CardSuit s);
+
+    CardValue getValue() const;
+    CardSuit getSuit() const;
+    
+    std::wstring suitToSymbol() const;
+    std::string valueToString() const;
+    COR::Cor getSuitColor() const;
 };
 
 #endif // CARD_HPP
