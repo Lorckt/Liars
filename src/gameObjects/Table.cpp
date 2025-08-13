@@ -1,115 +1,112 @@
 #include "Table.hpp"
-#include <random>
+#include <iostream>
 #include <algorithm>
-#include <chrono>
+#include <random>
 
-Table::Table(const std::vector<std::string>& playerNames) : currentPlayerIndex(0) {
-    for(size_t i = 0; i < playerNames.size(); ++i) {
-        players.push_back(std::make_unique<Player>(playerNames[i], i == 0));
+// Construtor: Cria o baralho correto do Liar's Deck
+Table::Table(int numPlayers) {
+    // Cria os jogadores
+    players.push_back(new Player("Voce", true));
+    for (int i = 1; i < numPlayers; ++i) {
+        players.push_back(new Player("IA " + std::to_string(i), false));
     }
-}
-
-void Table::createDeck() {
-    deck.clear();
-    const std::vector<CardSuit> suits = {CardSuit::HEARTS, CardSuit::DIAMONDS, CardSuit::CLUBS, CardSuit::SPADES};
     
-    for (const auto& suit : suits) {
-        for (int i = 0; i < 13; ++i) {
-            deck.push_back(Card(static_cast<CardValue>(i), suit));
-        }
+    // Cria o baralho de 20 cartas
+    for (int i = 0; i < 6; ++i) {
+        deck.push_back(Card(ACE, SPADES));
+        deck.push_back(Card(KING, SPADES));
+        deck.push_back(Card(QUEEN, SPADES));
     }
-    deck.push_back(Card(CardValue::JOKER, CardSuit::NONE));
-    deck.push_back(Card(CardValue::JOKER, CardSuit::NONE));
+    deck.push_back(Card(JOKER, NONE));
+    deck.push_back(Card(JOKER, NONE));
+
+    currentPlayerIndex = 0;
+    announcedValue = ACE; // Valor inicial qualquer
 }
 
-void Table::shuffleDeck() {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::shuffle(deck.begin(), deck.end(), std::default_random_engine(seed));
-}
-
-void Table::dealCards(int numCards) {
-    for (auto& player : players) {
-        player->clearHand();
-        if(player->isAlive()) {
-            for(int i = 0; i < numCards; ++i) {
-                if (!deck.empty()) {
-                    player->addCard(deck.back());
-                    deck.pop_back();
-                }
-            }
-        }
+Table::~Table() {
+    for (auto p : players) {
+        delete p;
     }
 }
 
 void Table::setupNewRound() {
-    createDeck();
-    shuffleDeck();
-    
-    tableCardValue = deck.back().getValue();
-    deck.pop_back();
+    // Retorna as cartas da mesa para o baralho principal
+    deck.insert(deck.end(), cardsOnTable.begin(), cardsOnTable.end());
+    cardsOnTable.clear();
 
-    dealCards(5);
+    // Embaralha e distribui
+    auto rd = std::random_device{}; 
+    auto g = std::mt19937{rd()};
+    std::shuffle(deck.begin(), deck.end(), g);
     
-    currentPlayerIndex = 0;
-    if(!players[currentPlayerIndex]->isAlive()) {
-        nextTurn();
+    for(auto p : players) p->clearHand();
+    
+    // Distribui 3 cartas para cada jogador vivo
+    int cardsToDeal = 3;
+    for(int i = 0; i < cardsToDeal; ++i) {
+        for(auto p : players) {
+            if (p->isAlive() && !deck.empty()) {
+                p->addCard(deck.back());
+                deck.pop_back();
+            }
+        }
     }
+    announcedValue = ACE; // Reseta a carta da mesa
 }
 
-Player* Table::getPlayer(int index) const {
-    if (index >= 0 && (size_t)index < players.size()) {
-        return players[index].get();
-    }
+Player* Table::getCurrentPlayer() { 
+    if (currentPlayerIndex >= 0 && (size_t)currentPlayerIndex < players.size())
+        return players[currentPlayerIndex];
     return nullptr;
 }
 
-Player* Table::getCurrentPlayer() const {
-    return players[currentPlayerIndex].get();
+Player* Table::getPlayer(int index) { 
+    if (index >= 0 && (size_t)index < players.size())
+        return players[index];
+    return nullptr;
 }
 
-CardValue Table::getTableCardValue() const {
-    return tableCardValue;
-}
+int Table::getPlayerCount() const { return players.size(); }
 
-int Table::getCurrentPlayerIndex() const {
-    return currentPlayerIndex;
-}
+int Table::getCurrentPlayerIndex() const { return currentPlayerIndex; }
+CardValue Table::getAnnouncedValue() const { return announcedValue; }
+const std::vector<Card>& Table::getTableCards() const { return cardsOnTable; }
 
-int Table::getLivingPlayerCount() const {
-    int count = 0;
-    for(const auto& p : players) {
-        if (p->isAlive()) {
-            count++;
+
+bool Table::checkLie(const std::vector<Card>& playedCards) {
+    for (const auto& card : playedCards) {
+        // Não é mentira se for a carta anunciada ou um Coringa
+        if (card.value != announcedValue && card.value != JOKER) {
+            return true; // Mentiu!
         }
     }
-    return count;
+    return false; // Falou a verdade
 }
 
-void Table::nextTurn() {
+bool Table::performRussianRoulette(int playerIndex) {
+    if (Player* p = getPlayer(playerIndex)) {
+        p->incrementRouletteCount();
+        if (p->getRouletteCount() >= 2) {
+            p->kill();
+            return true; // Morreu
+        }
+    }
+    return false; // Sobreviveu
+}
+
+void Table::nextTurn() { 
     do {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     } while (!players[currentPlayerIndex]->isAlive());
 }
 
-bool Table::checkLie(const std::vector<Card>& playedCards) const {
-    for (const auto& card : playedCards) {
-        if (card.getValue() != tableCardValue && card.getValue() != CardValue::JOKER) {
-            return true;
+int Table::getLivingPlayerCount() const { 
+    int count = 0;
+    for(const auto p : players) {
+        if (p->isAlive()) {
+            count++;
         }
     }
-    return false;
-}
-
-bool Table::performRussianRoulette(int playerIndex) {
-    if (playerIndex < 0 || (size_t)playerIndex >= players.size()) return false;
-    int roll = rand() % 6;
-    if (roll == 0) {
-        players[playerIndex]->kill();
-        return true;
-    }
-    return false;
-}
-
-int Table::getPlayerCount() const {
-    return players.size();
+    return count;
 }

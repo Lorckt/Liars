@@ -4,30 +4,36 @@
 #include "Player.hpp"
 #include "Card.hpp"
 #include <vector>
-#include <memory>
+#include <string>
 
 class Table {
 public:
-    Table(const std::vector<std::string>& playerNames);
+    Table(int numPlayers = 4);
+    ~Table();
+
     void setupNewRound();
-    Player* getPlayer(int index) const;
+    Player* getCurrentPlayer();
+    Player* getPlayer(int index);
     int getPlayerCount() const;
-    Player* getCurrentPlayer() const;
     int getCurrentPlayerIndex() const;
-    void nextTurn();
-    bool checkLie(const std::vector<Card>& lastPlayed) const;
+    
+    // Novas funções de lógica
+    void playerPlays(int playerIndex, const std::vector<int>& cardIndices, CardValue announcedValue);
+    bool checkLie(const std::vector<Card>& playedCards);
     bool performRussianRoulette(int playerIndex);
-    CardValue getTableCardValue() const;
+    
+    // Getters para o estado do jogo
+    CardValue getAnnouncedValue() const;
     int getLivingPlayerCount() const;
+    const std::vector<Card>& getTableCards() const;
+
+    void nextTurn();
 
 private:
-    void createDeck();
-    void shuffleDeck();
-    void dealCards(int numCards);
-
-    std::vector<std::unique_ptr<Player>> players;
+    std::vector<Player*> players;
     std::vector<Card> deck;
-    CardValue tableCardValue;
+    std::vector<Card> cardsOnTable;
+    CardValue announcedValue; // A "carta da mesa"
     int currentPlayerIndex;
 };
 

@@ -2,15 +2,17 @@
 #define BAR_SCENE_HPP
 
 #include "Fase.hpp"
-#include "TextSprite.hpp"
-#include "Sprite.hpp"
 #include "ObjetoDeJogo.hpp"
-#include "gameObjects/Table.hpp"
-#include "gameObjects/Card.hpp" // <-- Include crucial para a classe Card
-#include <memory>
+#include "Sprite.hpp"
+#include "TextSprite.hpp"
+#include "gameObjects/Card.hpp"
 #include <vector>
-#include <iostream>
+#include <string>
 
+// Forward declaration da classe Table
+class Table; 
+
+// Enum para controlar o estado do jogo na cena
 enum class GameState {
     PLAYER_TURN,
     AI_TURN,
@@ -22,42 +24,43 @@ class BarScene : public Fase {
 public:
     BarScene();
     virtual ~BarScene();
-
-    virtual unsigned run(SpriteBuffer& tela) override;
+    
     virtual void init() override;
+    virtual unsigned run(SpriteBuffer& tela) override;
 
 private:
+    // Métodos de lógica interna
+    void setupNewRound(); // <-- ADICIONADO DE VOLTA
+    void updateHandObjects();
+    void render(SpriteBuffer& tela);
+    void drawUI(SpriteBuffer& tela);
     void processInput(char input);
     void processAITurn(SpriteBuffer& tela);
-    void processShowResult(SpriteBuffer& tela);
-    void render(SpriteBuffer& tela);
-    void updateHandObjects();
-    void drawUI(SpriteBuffer& tela);
-    void setupNewRound();
+    void processShowResult();
 
-    std::unique_ptr<Table> table;
+    // Estado do jogo
     GameState currentState;
+    Table* table;
     bool needsRedraw;
-
-    TextSprite* statusText;
-    TextSprite* promptText;
-    TextSprite* tableCardText;
-    TextSprite* resultText;
+    int selectedCardIndex;
     std::string resultString;
+
+    // Cartas (objetos visuais)
+    std::vector<ObjetoDeJogo*> handCardObjects;
+    std::vector<ObjetoDeJogo*> tableCardObjects;
     
+    // Cartas (dados lógicos da última jogada)
+    std::vector<Card> lastPlayedCards;
+    int lastPlayerIndex;
+
+    // Sprites e Textos da UI
     Sprite* background_topo;
     Sprite* background_baixo;
-    
-    // Um "molde" para a frente das cartas
-    Sprite cardFrontTemplate;
-
-    // Vetores que guardam os objetos visíveis no jogo
-    std::vector<ObjetoDeJogo*> handCardObjects;
-    std::vector<ObjetoDeJogo*> tableCardObjects; // Mantemos para a lógica, mas não desenhamos
-
-    int selectedCardIndex;
-    int lastPlayerIndex;
-    std::vector<Card> lastPlayedCards;
+    Sprite* cardBackSprite; // Para o verso das cartas na mesa
+    TextSprite* statusText;
+    TextSprite* tableCardText;
+    TextSprite* promptText;
+    TextSprite* resultText;
 };
 
 #endif // BAR_SCENE_HPP

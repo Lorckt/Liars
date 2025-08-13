@@ -11,7 +11,7 @@ CXXFLAGS = -std=c++20 -g -Wall
 ENGINE_DIR = ASCII_Engine
 
 # Flags de include: Diz ao compilador para procurar ficheiros .hpp nestas pastas
-INCLUDES = -I./src -I./$(ENGINE_DIR)
+INCLUDES = -I./src -I./$(ENGINE_DIR) -I./$(ENGINE_DIR)/core -I./$(ENGINE_DIR)/utils -I./$(ENGINE_DIR)/gameObjects -I./$(ENGINE_DIR)/input
 
 # Bibliotecas a serem lincadas
 LIBS = -lncurses

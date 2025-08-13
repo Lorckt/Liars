@@ -1,26 +1,24 @@
 #ifndef CARD_HPP
 #define CARD_HPP
 
-#include "Cores.hpp"
 #include <string>
+#include "core/BaseColor.hpp"
 
+// Enums para os valores e naipes, com JOKER adicionado
 enum CardValue { ACE = 1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER };
 enum CardSuit { HEARTS, DIAMONDS, CLUBS, SPADES, NONE };
 
 class Card {
-private:
+public:
     CardValue value;
     CardSuit suit;
 
-public:
     Card(CardValue v, CardSuit s);
 
-    CardValue getValue() const;
-    CardSuit getSuit() const;
-    
-    std::wstring suitToSymbol() const;
     std::string valueToString() const;
+    std::wstring suitToSymbol() const;
     COR::Cor getSuitColor() const;
+    std::string getSpritePath() const;
 };
 
 #endif // CARD_HPP

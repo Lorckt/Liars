@@ -4,11 +4,14 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/src/gameObjects"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/ASCII_Engine",
+                "${workspaceFolder}/ASCII_Engine/core"
             ],
             "defines": [],
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
-            "cppStandard": "gnu++17",
+            "cppStandard": "c++20",
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],
