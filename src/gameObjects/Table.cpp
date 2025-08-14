@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <random>
 
-// Construtor: Cria o baralho correto do Liar's Deck
 Table::Table(int numPlayers) {
     // Cria os jogadores
     players.push_back(new Player("Voce", true));
